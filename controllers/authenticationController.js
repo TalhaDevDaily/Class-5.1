@@ -60,4 +60,46 @@ async function createUser(req, res) {
 }
 
 // Read User
-async function readUser(req, res) {}
+async function readUser(req, res) {
+  const readAll = await User.find({});
+  res.status(200).json({
+    message: `You have ${readAll.length} users in total!`,
+    readAll,
+  });
+}
+
+// Remove User
+async function deleteUser(req, res) {
+  const { id } = req.params;
+
+  const existingId = await User.findOne({ _id: id });
+  if (!existingId)
+    return res.status(400).json({
+      message: `User with given ID does not exist`,
+    });
+
+  const remove = await User.findByIdAndDelete(id);
+  res.status(200).json({
+    message: `User ${remove.email} have been removed. Sad to see you go :(`,
+  });
+}
+
+async function updateUser(req, res) {
+  const { id } = req.params;
+
+  const existingId = await User.findOne({ _id: id });
+  if (!existingId)
+    return res
+      .status(200)
+      .json({ message: `User with such ID does not exist!` });
+
+  const update = await User.findByIdAndUpdate({ _id: id }, req.body, {
+    returnDocument: 'after',
+  });
+  res.status(200).json({ message: `Credentials has been updated!`, update });
+}
+
+const uploadImg = (req, res) =>
+  res.status(200).json({ message: `Image uploaded` });
+
+module.exports = { createUser, readUser, deleteUser, updateUser, uploadImg };
